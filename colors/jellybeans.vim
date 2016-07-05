@@ -69,7 +69,7 @@ endif
 " - g:jellybeans_use_term_background_color
 " - g:jellybeans_use_term_italics
 
-let s:background_color = "151515"
+let s:background_color = "000000"
 
 " Backwards compatibility
 if exists("g:jellybeans_background_color") || exists("g:jellybeans_background_color_256")
@@ -385,20 +385,20 @@ endif
 call s:X("Visual","","404040","","",s:termBlack)
 call s:X("Cursor",s:background_color,"b0d0f0","","","")
 
-call s:X("LineNr","605958",s:background_color,"none",s:termBlack,"")
+call s:X("LineNr","444444",s:background_color,"none",s:termBlack,"")
 call s:X("CursorLineNr","ccc5c4","","none","White","")
 call s:X("Comment","888888","","italic","Grey","")
 call s:X("Todo","c7c7c7","","bold","White",s:termBlack)
 
-call s:X("StatusLine","000000","dddddd","italic","","White")
-call s:X("StatusLineNC","ffffff","403c41","italic","White","Black")
-call s:X("VertSplit","777777","403c41","",s:termBlack,s:termBlack)
-call s:X("WildMenu","f0a0c0","302028","","Magenta","")
+call s:X("StatusLine","dadada","121212","italic","","White")
+call s:X("StatusLineNC","000000","121212","italic","White","Black")
+call s:X("VertSplit","303030",s:background_color,"",s:termBlack,s:termBlack)
+call s:X("WildMenu","000000","a8a8a8","","","")
 
 call s:X("Folded","a0a8b0","384048","italic",s:termBlack,"")
 call s:X("FoldColumn","535D66","1f1f1f","","",s:termBlack)
 call s:X("SignColumn","777777","333333","","",s:termBlack)
-call s:X("ColorColumn","","000000","","",s:termBlack)
+call s:X("ColorColumn","","121212","","",s:termBlack)
 
 call s:X("Title","70b950","","bold","Green","")
 
@@ -581,7 +581,6 @@ call s:X("PreciseJumpTarget","B9ED67","405026","","White","Green")
 
 " Manual overrides for 256-color terminals. Dark colors auto-map badly.
 if !s:low_color
-  hi StatusLineNC ctermbg=235
   hi Folded ctermbg=236
   hi DiffText ctermfg=81
   hi DbgBreakPt ctermbg=53
