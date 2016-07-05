@@ -1,20 +1,18 @@
 " Vim color file
+
+"  "       _      _ _        _                   "
+"  "      | | ___| | |_   _ (_) __ _ _ __ ___    "
+"  "   _  | |/ _ \ | | | | || |/ _` | '_ ` _ \   "
+"  "  | |_| |  __/ | | |_| || | (_| | | | | | |  "
+"  "   \___/ \___|_|_|\__, |/ |\__,_|_| |_| |_|  "
+"  "                  |___/__/                   "
 "
-"  "    __       _ _       _                             "
-"  "    \ \  ___| | |_   _| |__   ___  __ _ _ __  ___    "
-"  "     \ \/ _ \ | | | | |  _ \ / _ \/ _  |  _ \/ __|   "
-"  "  /\_/ /  __/ | | |_| | |_| |  __/ |_| | | | \__ \   "
-"  "  \___/ \___|_|_|\__  |____/ \___|\____|_| |_|___/   "
-"  "                 \___/                               "
+"   "A Vim color scheme based on jellybeans.vim."
 "
-"         "A colorful, dark color scheme for Vim."
-"
-" File:         jellybeans.vim
-" URL:          github.com/nanotech/jellybeans.vim
-" Scripts URL:  vim.org/scripts/script.php?script_id=2555
-" Maintainer:   NanoTech (nanotech.nanotechcorp.net)
-" Version:      1.6~git
-" Last Change:  January 15th, 2012
+" File:         jellyjam.vim
+" URL:          github.com/meribold/jellyjam.vim
+" Maintainer:   meribold (meribold@gmail.com)
+" Last Change:  July 5th, 2016
 " License:      MIT
 " Contributors: Daniel Herbert (pocketninja)
 "               Henry So, Jr. <henryso@panix.com>
@@ -55,7 +53,7 @@ if exists("syntax_on")
   syntax reset
 endif
 
-let colors_name = "jellybeans"
+let colors_name = "jellyjam"
 
 if has("gui_running") || &t_Co == 88 || &t_Co == 256
   let s:low_color = 0
@@ -64,45 +62,45 @@ else
 endif
 
 " Configuration Variables:
-" - g:jellybeans_overrides
-" - g:jellybeans_use_lowcolor_black
-" - g:jellybeans_use_term_background_color
-" - g:jellybeans_use_term_italics
+" - g:jellyjam_overrides
+" - g:jellyjam_use_lowcolor_black
+" - g:jellyjam_use_term_background_color
+" - g:jellyjam_use_term_italics
 
 let s:background_color = "000000"
 
 " Backwards compatibility
-if exists("g:jellybeans_background_color") || exists("g:jellybeans_background_color_256")
-  if !exists("g:jellybeans_overrides")
-    let g:jellybeans_overrides = {}
+if exists("g:jellyjam_background_color") || exists("g:jellyjam_background_color_256")
+  if !exists("g:jellyjam_overrides")
+    let g:jellyjam_overrides = {}
   endif
-  if !has_key(g:jellybeans_overrides, "background")
-    let g:jellybeans_overrides["background"] = {}
-  endif
-
-  if exists("g:jellybeans_background_color")
-    let g:jellybeans_overrides["background"]["guibg"] = g:jellybeans_background_color
+  if !has_key(g:jellyjam_overrides, "background")
+    let g:jellyjam_overrides["background"] = {}
   endif
 
-  if exists("g:jellybeans_background_color_256")
-    let g:jellybeans_overrides["background"]["256ctermbg"] = g:jellybeans_background_color_256
+  if exists("g:jellyjam_background_color")
+    let g:jellyjam_overrides["background"]["guibg"] = g:jellyjam_background_color
+  endif
+
+  if exists("g:jellyjam_background_color_256")
+    let g:jellyjam_overrides["background"]["256ctermbg"] = g:jellyjam_background_color_256
   endif
 endif
 
-" Ensure that g:jellybeans_use_term_background_color = 0 works with overrides
-if exists("g:jellybeans_overrides")
-  \ && has_key(g:jellybeans_overrides, "background")
-  \ && has_key(g:jellybeans_overrides["background"], "guibg")
-  let s:background_color = g:jellybeans_overrides["background"]["guibg"]
+" Ensure that g:jellyjam_use_term_background_color = 0 works with overrides
+if exists("g:jellyjam_overrides")
+  \ && has_key(g:jellyjam_overrides, "background")
+  \ && has_key(g:jellyjam_overrides["background"], "guibg")
+  let s:background_color = g:jellyjam_overrides["background"]["guibg"]
 endif
 
-if !exists("g:jellybeans_use_lowcolor_black") || g:jellybeans_use_lowcolor_black
+if !exists("g:jellyjam_use_lowcolor_black") || g:jellyjam_use_lowcolor_black
   let s:termBlack = "Black"
 else
   let s:termBlack = "Grey"
 endif
 
-if !exists("g:jellybeans_use_term_background_color")
+if !exists("g:jellyjam_use_term_background_color")
   " OS X's Terminal.app and iTerm apply transparency to all
   " backgrounds. Other terminals tend to only apply transparency
   " to the default unhighlighted background.
@@ -110,7 +108,7 @@ if !exists("g:jellybeans_use_term_background_color")
   " has("mac") only detects MacVim, not Apple's /usr/bin/vim.
   " We could check system("uname"), but then we're calling
   " external programs from a colorscheme.
-  let g:jellybeans_use_term_background_color = has("mac")
+  let g:jellyjam_use_term_background_color = has("mac")
 end
 
 " Color approximation functions by Henry So, Jr. and David Liang {{{
@@ -331,7 +329,7 @@ fun! s:X(group, fg, bg, attr, lcfg, lcbg)
     let l:fge = empty(a:fg)
     let l:bge = empty(a:bg)
 
-    if !g:jellybeans_use_term_background_color && a:bg == s:background_color
+    if !g:jellyjam_use_term_background_color && a:bg == s:background_color
       let l:ctermbg = 'NONE'
     else
       let l:ctermbg = s:rgb(a:bg)
@@ -352,7 +350,7 @@ fun! s:X(group, fg, bg, attr, lcfg, lcbg)
     let l:attr = a:attr
   endif
 
-  if exists("g:jellybeans_use_term_italics") && g:jellybeans_use_term_italics
+  if exists("g:jellyjam_use_term_italics") && g:jellyjam_use_term_italics
     let l:cterm_attr = l:attr
   else
     let l:cterm_attr = join(filter(split(l:attr, ","), "v:val !=? 'italic'"), ",")
@@ -588,7 +586,7 @@ if !s:low_color
   hi IndentGuidesEven ctermbg=234
 endif
 
-if exists("g:jellybeans_overrides")
+if exists("g:jellyjam_overrides")
   fun! s:current_attr(group)
     let l:synid = synIDtrans(hlID(a:group))
     let l:attrs = []
@@ -635,7 +633,7 @@ if exists("g:jellybeans_overrides")
       unlet l:def
     endfor
   endfun
-  call s:load_colors(g:jellybeans_overrides)
+  call s:load_colors(g:jellyjam_overrides)
   delf s:load_colors
   delf s:load_color_def
   delf s:current_color
