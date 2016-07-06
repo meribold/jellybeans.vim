@@ -393,7 +393,7 @@ call s:X("StatusLineNC","000000","121212","italic","White","Black")
 call s:X("VertSplit","303030",s:background_color,"",s:termBlack,s:termBlack)
 call s:X("WildMenu","000000","a8a8a8","","","")
 
-call s:X("Folded","a0a8b0","384048","italic",s:termBlack,"")
+call s:X("Folded","444444","080808","italic",s:termBlack,"")
 call s:X("FoldColumn","535D66","1f1f1f","","",s:termBlack)
 call s:X("SignColumn","777777","333333","","",s:termBlack)
 call s:X("ColorColumn","","121212","","",s:termBlack)
@@ -579,7 +579,6 @@ call s:X("PreciseJumpTarget","B9ED67","405026","","White","Green")
 
 " Manual overrides for 256-color terminals. Dark colors auto-map badly.
 if !s:low_color
-  hi Folded ctermbg=236
   hi DiffText ctermfg=81
   hi DbgBreakPt ctermbg=53
   hi IndentGuidesOdd ctermbg=235
