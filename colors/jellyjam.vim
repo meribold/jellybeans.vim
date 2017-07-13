@@ -12,15 +12,24 @@
 " File:         jellyjam.vim
 " URL:          github.com/meribold/jellyjam.vim
 " Maintainer:   meribold (meribold@gmail.com)
-" Last Change:  July 5th, 2016
+" Version:      1.6
+" Last Change:  October 18th, 2016
 " License:      MIT
-" Contributors: Daniel Herbert (pocketninja)
-"               Henry So, Jr. <henryso@panix.com>
+" Contributors: Andrew Wong (w0ng)
+"               Brian Marshall (bmars)
+"               Daniel Herbert (pocketninja)
 "               David Liang <bmdavll at gmail dot com>
+"               Henry So, Jr. <henryso@panix.com>
+"               Joe Doherty (docapotamus)
+"               Karl Litterfeldt (Litterfeldt)
+"               Keith Pitt (keithpitt)
+"               Philipp Rustemeier (12foo)
+"               Rafael Bicalho (rbika)
 "               Rich Healey (richo)
-"               Andrew Wong (w0ng)
+"               Siwen Yu (yusiwen)
+"               Tim Willis (willist)
 "
-" Copyright (c) 2009-2012 NanoTech
+" Copyright (c) 2009-2016 NanoTech
 "
 " Permission is hereby granted, free of charge, to any per‐
 " son obtaining a copy of this software and associated doc‐
@@ -55,43 +64,50 @@ endif
 
 let colors_name = "jellyjam"
 
-if has("gui_running") || &t_Co == 88 || &t_Co == 256
+if has("gui_running") || (has('termguicolors') && &termguicolors) || &t_Co >= 88
   let s:low_color = 0
 else
   let s:low_color = 1
 endif
 
 " Configuration Variables:
-" - g:jellyjam_overrides
-" - g:jellyjam_use_lowcolor_black
-" - g:jellyjam_use_term_background_color
-" - g:jellyjam_use_term_italics
+" - g:jellyjam_overrides          (default = {})
+" - g:jellyjam_use_lowcolor_black (default = 1)
+" - g:jellyjam_use_gui_italics    (default = 1)
+" - g:jellyjam_use_term_italics   (default = 0)
 
 let s:background_color = "000000"
 
+if exists("g:jellyjam_overrides")
+  let s:overrides = g:jellyjam_overrides
+else
+  let s:overrides = {}
+endif
+
 " Backwards compatibility
-if exists("g:jellyjam_background_color") || exists("g:jellyjam_background_color_256")
-  if !exists("g:jellyjam_overrides")
-    let g:jellyjam_overrides = {}
-  endif
-  if !has_key(g:jellyjam_overrides, "background")
-    let g:jellyjam_overrides["background"] = {}
+if exists("g:jellyjam_background_color")
+  \ || exists("g:jellyjam_background_color_256")
+  \ || exists("g:jellyjam_use_term_background_color")
+
+  let s:overrides = deepcopy(s:overrides)
+
+  if !has_key(s:overrides, "background")
+    let s:overrides["background"] = {}
   endif
 
   if exists("g:jellyjam_background_color")
-    let g:jellyjam_overrides["background"]["guibg"] = g:jellyjam_background_color
+    let s:overrides["background"]["guibg"] = g:jellyjam_background_color
   endif
 
   if exists("g:jellyjam_background_color_256")
-    let g:jellyjam_overrides["background"]["256ctermbg"] = g:jellyjam_background_color_256
+    let s:overrides["background"]["256ctermbg"] = g:jellyjam_background_color_256
   endif
-endif
 
-" Ensure that g:jellyjam_use_term_background_color = 0 works with overrides
-if exists("g:jellyjam_overrides")
-  \ && has_key(g:jellyjam_overrides, "background")
-  \ && has_key(g:jellyjam_overrides["background"], "guibg")
-  let s:background_color = g:jellyjam_overrides["background"]["guibg"]
+  if exists("g:jellyjam_use_term_background_color")
+    \ && g:jellyjam_use_term_background_color
+    let s:overrides["background"]["ctermbg"] = "NONE"
+    let s:overrides["background"]["256ctermbg"] = "NONE"
+  endif
 endif
 
 if !exists("g:jellyjam_use_lowcolor_black") || g:jellyjam_use_lowcolor_black
@@ -100,16 +116,24 @@ else
   let s:termBlack = "Grey"
 endif
 
-if !exists("g:jellyjam_use_term_background_color")
-  " OS X's Terminal.app and iTerm apply transparency to all
-  " backgrounds. Other terminals tend to only apply transparency
-  " to the default unhighlighted background.
-  "
-  " has("mac") only detects MacVim, not Apple's /usr/bin/vim.
-  " We could check system("uname"), but then we're calling
-  " external programs from a colorscheme.
-  let g:jellyjam_use_term_background_color = has("mac")
-end
+" When `termguicolors` is set, Vim[^1] ignores `guibg=NONE` after
+" `guibg` is already set to a color. See:
+"
+" - https://github.com/vim/vim/issues/981
+" - https://github.com/nanotech/jellybeans.vim/issues/64
+"
+" To work around this, ensure we don't set the default background
+" color before an override changes it to `NONE` by ensuring that the
+" background color isn't set to a value different from its override.
+"
+" [^1]: Tested on 8.0.567. Does not apply to Neovim.
+"
+" TODO: Enable this behavior for all highlights by applying
+"       overrides before calling highlight commands.
+"
+if has_key(s:overrides, "background") && has_key(s:overrides["background"], "guibg")
+    let s:background_color = s:overrides["background"]["guibg"]
+endif
 
 " Color approximation functions by Henry So, Jr. and David Liang {{{
 " Added to jellybeans.vim by Daniel Herbert
@@ -268,7 +292,7 @@ endfun
 fun! s:color(r, g, b)
   " map greys directly (see xterm's 256colres.pl)
   if &t_Co == 256 && a:r == a:g && a:g == a:b && a:r > 3 && a:r < 243
-    return float2nr(round(a:r - 8) / 10.0) + 232
+    return (a:r - 8) / 10 + 232
   endif
 
   " get the closest grey
@@ -304,62 +328,66 @@ fun! s:color(r, g, b)
   endif
 endfun
 
+fun! s:is_empty_or_none(str)
+  return empty(a:str) || a:str ==? "NONE"
+endfun
+
 " returns the palette index to approximate the 'rrggbb' hex string
 fun! s:rgb(rgb)
+  if s:is_empty_or_none(a:rgb)
+    return "NONE"
+  endif
   let l:r = ("0x" . strpart(a:rgb, 0, 2)) + 0
   let l:g = ("0x" . strpart(a:rgb, 2, 2)) + 0
   let l:b = ("0x" . strpart(a:rgb, 4, 2)) + 0
   return s:color(l:r, l:g, l:b)
 endfun
 
+fun! s:prefix_highlight_value_with(prefix, color)
+  if s:is_empty_or_none(a:color)
+    return "NONE"
+  else
+    return a:prefix . a:color
+  endif
+endfun
+
+fun! s:remove_italic_attr(attr)
+  let l:attr = join(filter(split(a:attr, ","), "v:val !=? 'italic'"), ",")
+  if empty(l:attr)
+    let l:attr = "NONE"
+  endif
+  return l:attr
+endfun
+
 " sets the highlighting for the given group
 fun! s:X(group, fg, bg, attr, lcfg, lcbg)
   if s:low_color
-    let l:fge = empty(a:lcfg)
-    let l:bge = empty(a:lcbg)
-
-    if !l:fge && !l:bge
-      exec "hi ".a:group." ctermfg=".a:lcfg." ctermbg=".a:lcbg
-    elseif !l:fge && l:bge
-      exec "hi ".a:group." ctermfg=".a:lcfg." ctermbg=NONE"
-    elseif l:fge && !l:bge
-      exec "hi ".a:group." ctermfg=NONE ctermbg=".a:lcbg
-    endif
+    exec "hi ".a:group.
+    \ " ctermfg=".s:prefix_highlight_value_with("", a:lcfg).
+    \ " ctermbg=".s:prefix_highlight_value_with("", a:lcbg)
   else
-    let l:fge = empty(a:fg)
-    let l:bge = empty(a:bg)
-
-    if !g:jellyjam_use_term_background_color && a:bg == s:background_color
-      let l:ctermbg = 'NONE'
-    else
-      let l:ctermbg = s:rgb(a:bg)
-    endif
-
-    if !l:fge && !l:bge
-      exec "hi ".a:group." guifg=#".a:fg." guibg=#".a:bg." ctermfg=".s:rgb(a:fg)." ctermbg=".l:ctermbg
-    elseif !l:fge && l:bge
-      exec "hi ".a:group." guifg=#".a:fg." guibg=NONE ctermfg=".s:rgb(a:fg)." ctermbg=NONE"
-    elseif l:fge && !l:bge
-      exec "hi ".a:group." guifg=NONE guibg=#".a:bg." ctermfg=NONE ctermbg=".l:ctermbg
-    endif
+    exec "hi ".a:group.
+    \ " guifg=".s:prefix_highlight_value_with("#", a:fg).
+    \ " guibg=".s:prefix_highlight_value_with("#", a:bg).
+    \ " ctermfg=".s:rgb(a:fg).
+    \ " ctermbg=".s:rgb(a:bg)
   endif
 
-  if empty(a:attr)
-    let l:attr = "none"
-  else
-    let l:attr = a:attr
-  endif
+  let l:attr = s:prefix_highlight_value_with("", a:attr)
 
   if exists("g:jellyjam_use_term_italics") && g:jellyjam_use_term_italics
     let l:cterm_attr = l:attr
   else
-    let l:cterm_attr = join(filter(split(l:attr, ","), "v:val !=? 'italic'"), ",")
-    if empty(l:cterm_attr)
-      let l:cterm_attr = "none"
-    endif
+    let l:cterm_attr = s:remove_italic_attr(l:attr)
   endif
 
-  exec "hi ".a:group." gui=".l:attr." cterm=".l:cterm_attr
+  if !exists("g:jellyjam_use_gui_italics") || g:jellyjam_use_gui_italics
+    let l:gui_attr = l:attr
+  else
+    let l:gui_attr = s:remove_italic_attr(l:attr)
+  endif
+
+  exec "hi ".a:group." gui=".l:gui_attr." cterm=".l:cterm_attr
 endfun
 " }}}
 
@@ -383,8 +411,8 @@ endif
 call s:X("Visual","","404040","","",s:termBlack)
 call s:X("Cursor",s:background_color,"b0d0f0","","","")
 
-call s:X("LineNr","444444",s:background_color,"none",s:termBlack,"")
-call s:X("CursorLineNr","ccc5c4","","none","White","")
+call s:X("LineNr","444444",s:background_color,"NONE",s:termBlack,"")
+call s:X("CursorLineNr","ccc5c4","","NONE","White","")
 call s:X("Comment","888888","","italic","Grey","")
 call s:X("Todo","c7c7c7","","bold","White",s:termBlack)
 
@@ -414,6 +442,7 @@ call s:X("Statement","8197bf","","","DarkBlue","")
 call s:X("PreProc","8fbfdc","","","LightBlue","")
 
 hi! link Operator Structure
+hi! link Conceal Operator
 
 call s:X("Type","ffb964","","","Yellow","")
 call s:X("NonText","606060",s:background_color,"",s:termBlack,"")
@@ -579,13 +608,15 @@ call s:X("PreciseJumpTarget","B9ED67","405026","","White","Green")
 
 " Manual overrides for 256-color terminals. Dark colors auto-map badly.
 if !s:low_color
+  hi StatusLineNC ctermbg=235
+  hi Folded ctermbg=236
   hi DiffText ctermfg=81
   hi DbgBreakPt ctermbg=53
   hi IndentGuidesOdd ctermbg=235
   hi IndentGuidesEven ctermbg=234
 endif
 
-if exists("g:jellyjam_overrides")
+if !empty("s:overrides")
   fun! s:current_attr(group)
     let l:synid = synIDtrans(hlID(a:group))
     let l:attrs = []
@@ -632,7 +663,7 @@ if exists("g:jellyjam_overrides")
       unlet l:def
     endfor
   endfun
-  call s:load_colors(g:jellyjam_overrides)
+  call s:load_colors(s:overrides)
   delf s:load_colors
   delf s:load_color_def
   delf s:current_color
@@ -641,7 +672,10 @@ endif
 
 " delete functions {{{
 delf s:X
+delf s:remove_italic_attr
+delf s:prefix_highlight_value_with
 delf s:rgb
+delf s:is_empty_or_none
 delf s:color
 delf s:rgb_color
 delf s:rgb_level
