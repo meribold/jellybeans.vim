@@ -609,7 +609,6 @@ call s:X("PreciseJumpTarget","B9ED67","405026","","White","Green")
 " Manual overrides for 256-color terminals. Dark colors auto-map badly.
 if !s:low_color
   hi StatusLineNC ctermbg=235
-  hi Folded ctermbg=236
   hi DiffText ctermfg=81
   hi DbgBreakPt ctermbg=53
   hi IndentGuidesOdd ctermbg=235
