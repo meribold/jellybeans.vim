@@ -1,12 +1,8 @@
-" ========================================================================================
-" Filename: autoload/lightline/colorscheme/jellyjam.vim
-" Author: itchyny (with small changes by Lukas Waymann)
-" License: MIT License
-" Last Change: 2016/07/05
-" ========================================================================================
-
-" Based on autoload/lightline/colorscheme/jellybeans.vim from [lightline.vim][1].
-" [1]: https://github.com/itchyny/lightline.vim
+" This is a lightly modified version of jellybeans.vim from lightline.vim [1], which is
+" released under the MIT license [2].
+"
+" [1]: https://github.com/itchyny/lightline.vim/blob/master/autoload/lightline/colorscheme/jellybeans.vim
+" [2]: https://github.com/itchyny/lightline.vim/blob/master/LICENSE
 
 let s:base03  = [ '#121212', 233 ]
 let s:base02  = [ '#121212', 233 ]
@@ -27,7 +23,7 @@ let s:green   = [ '#99ad6a', 107 ]
 let s:p = {'normal': {}, 'inactive': {}, 'insert': {}, 'replace': {}, 'visual': {}, 'tabline': {}}
 let s:p.normal.left = [ [ s:base02, s:blue ], [ s:base3, s:base01 ] ]
 let s:p.normal.right = [ [ s:base02, s:base1 ], [ s:base2, s:base01 ] ]
-let s:p.inactive.right = [ [ s:base02, s:base02 ], [ s:base02, s:base02 ] ]
+let s:p.inactive.right = [ [ s:base0, s:base02 ], [ s:base00, s:base02 ] ]
 let s:p.inactive.left =  [ [ s:base0, s:base02 ], [ s:base00, s:base02 ] ]
 let s:p.insert.left = [ [ s:base02, s:green ], [ s:base3, s:base01 ] ]
 let s:p.replace.left = [ [ s:base02, s:red ], [ s:base3, s:base01 ] ]
@@ -42,5 +38,3 @@ let s:p.normal.error = [ [ s:red, s:base02 ] ]
 let s:p.normal.warning = [ [ s:yellow, s:base01 ] ]
 
 let g:lightline#colorscheme#jellyjam#palette = lightline#colorscheme#flatten(s:p)
-
-" vim: tw=90 sts=-1 sw=3 et
